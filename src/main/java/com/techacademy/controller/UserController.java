@@ -4,8 +4,8 @@ import java.util.Set;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult; // 追加
-import org.springframework.validation.annotation.Validated; // 追加
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,7 +41,6 @@ public class UserController {
         return "user/register";
     }
 
-    // ----- 変更ここから -----
     /** User登録処理 */
     @PostMapping("/register")
     public String postRegister(@Validated User user, BindingResult res, Model model) {
@@ -54,13 +53,18 @@ public class UserController {
         // 一覧画面にリダイレクト
         return "redirect:/user/list";
     }
-    // ----- 変更ここまで -----
 
     /** User更新画面を表示 */
     @GetMapping("/update/{id}/")
-    public String getUser(@PathVariable("id") Integer id, Model model) {
+    public String getUser(@PathVariable("id") Integer id, User user, Model model) {
         // Modelに登録
-        model.addAttribute("user", service.getUser(id));
+        if (id != null) {
+
+            model.addAttribute("user", service.getUser(id));
+
+        } else {
+            model.addAttribute("user", user);
+        }
         // User更新画面に遷移
         return "user/update";
     }
@@ -70,7 +74,7 @@ public class UserController {
     public String postUser(@Validated User user, BindingResult res, Model model) {
         if (res.hasErrors()) {
             // エラーあり
-            return "user/update";
+            return getUser(null, user, model);
         }
         // User登録
         service.saveUser(user);
